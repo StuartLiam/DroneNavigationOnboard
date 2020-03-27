@@ -66,17 +66,3 @@ class World(Rectangle):
             plt.Rectangle((i.x, i.y), i.width, i.height, edgecolor='#202020')
         plt.show()
 
-
-
-print("starting tests\n")
-
-print ("Creating World\n")
-world = World(0,0,30,30)
-world.print()
-
-print ("splitting the block\n")
-world.split(10,10,VERITCAL,False)
-world.split(5,5,HORIZONTAL,False)
-
-print("new blocks are")
-world.print()
