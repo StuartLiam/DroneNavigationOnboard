@@ -56,6 +56,9 @@ class World(Rectangle):
                     self.blocks.append(Block(i.x,y,i.width,((i.y + i.height)-y)))
                     i.height = y - i.y
 
+    def updateGraph(self):
+        print("updating the graph")
+
 
 
     def print(self):
