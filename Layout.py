@@ -62,10 +62,19 @@ class Block2D:
 
 
 #ZA WOURLDO
-class World2D(Block2D):
+class World2D:
     def __init__(self,maxX,minX,maxY,minY):
-        super(World2D,self).__init__(maxX,minX,maxY,minY)
+        self.maxX = maxX
+        self.minX = minX
+        self.maxY = maxY
+        self.minY = minY
         self.blocks = [Block2D(maxX,minX,maxY,minY)]
+
+    def print(self):
+        print("{} long by {} tall".format(self.maxX-self.minX,self.maxY-self.minY))
+
+    def split(self, point):
+        print("hold")
     
 
 
@@ -89,8 +98,10 @@ class DNode:
 
 class DroneActor:
     def __init__(self):
-        super().__init__()
-    
+        self.homeBase = Point(0,0,0)
+        self.currLoc = homeBase
+    def updateLoc(self,x,y,z):
+        self.currLoc = Point(x,y,z)
 
 
 
@@ -108,76 +119,76 @@ World = World2D(10,0,10,5)
 World.print()
 
 
-time = dt.datetime.now()
-timeStamp = time.strftime("_%H_%M_%S")
+# time = dt.datetime.now()
+# timeStamp = time.strftime("_%H_%M_%S")
 
-#all of our files
+# #all of our files
 
-class_names = ['back', 'enter', 'forward', 'left', 'right']
-
-
-CHUNK_SIZE = 8
-#A smoothing function that makes finding peaks easier
+# class_names = ['back', 'enter', 'forward', 'left', 'right']
 
 
-
-
-
-#======================
-#
-#   I could not write a clean way to process our data in to a single file
-#   thus the following 5 loops compile the data the long way
-#
-#======================
+# CHUNK_SIZE = 8
+# #A smoothing function that makes finding peaks easier
 
 
 
 
 
-def preprocess(x, y):
-  x = tf.cast(x, tf.float32)
-  y = tf.cast(y, tf.int64)
-
-  return x, y
-
-def create_dataset(xs, ys, n_classes=5):
-  ys = tf.one_hot(ys, depth=n_classes)
-  return tf.data.Dataset.from_tensor_slices((xs, ys)) \
-    .map(preprocess) \
-    .shuffle(len(ys)) \
-    .batch(8)
+# #======================
+# #
+# #   I could not write a clean way to process our data in to a single file
+# #   thus the following 5 loops compile the data the long way
+# #
+# #======================
 
 
 
 
 
-model = keras.Sequential([
-    keras.layers.Dense(units=1, input_shape=(272,)),
-    keras.layers.Dense(units=64, activation='relu'),
-    keras.layers.Dense(units=32, activation='relu'),
-    keras.layers.Dense(units=32, activation='relu'),
-    keras.layers.Dense(units=16, activation='relu'),
-    keras.layers.Dense(units=5, activation='softmax')
-])
+# def preprocess(x, y):
+#   x = tf.cast(x, tf.float32)
+#   y = tf.cast(y, tf.int64)
+
+#   return x, y
+
+# def create_dataset(xs, ys, n_classes=5):
+#   ys = tf.one_hot(ys, depth=n_classes)
+#   return tf.data.Dataset.from_tensor_slices((xs, ys)) \
+#     .map(preprocess) \
+#     .shuffle(len(ys)) \
+#     .batch(8)
 
 
-# Train the model, iterating on the data in batches of 32 samples
-model.compile(optimizer='adamax', 
-            loss=tf.losses.CategoricalCrossentropy(from_logits=True),
-            metrics=['mean_absolute_error','accuracy'])
 
-# history = model.fit(
-#     train_dataset.repeat(), 
-#     epochs=1600, 
-#     steps_per_epoch=200,
-#     validation_data=val_dataset.repeat(), 
-#     validation_steps=20,
-#     verbose = 1
-# )
-# predictions = model.predict(val_dataset)
 
-# print(test_res)
-# for pred in predictions:
-#     print(class_names[np.argmax(pred)])
 
-model.summary()
+# model = keras.Sequential([
+#     keras.layers.Dense(units=1, input_shape=(272,)),
+#     keras.layers.Dense(units=64, activation='relu'),
+#     keras.layers.Dense(units=32, activation='relu'),
+#     keras.layers.Dense(units=32, activation='relu'),
+#     keras.layers.Dense(units=16, activation='relu'),
+#     keras.layers.Dense(units=5, activation='softmax')
+# ])
+
+
+# # Train the model, iterating on the data in batches of 32 samples
+# model.compile(optimizer='adamax', 
+#             loss=tf.losses.CategoricalCrossentropy(from_logits=True),
+#             metrics=['mean_absolute_error','accuracy'])
+
+# # history = model.fit(
+# #     train_dataset.repeat(), 
+# #     epochs=1600, 
+# #     steps_per_epoch=200,
+# #     validation_data=val_dataset.repeat(), 
+# #     validation_steps=20,
+# #     verbose = 1
+# # )
+# # predictions = model.predict(val_dataset)
+
+# # print(test_res)
+# # for pred in predictions:
+# #     print(class_names[np.argmax(pred)])
+
+# model.summary()
