@@ -1,10 +1,11 @@
 
 
 class Node:
-    def __init__(self,x,y):
+    def __init__(self,x,y,parent=None):
         #print("node created")
         self.x = x
         self.y = y
+        self.parent = parent
 
     def print(self):
         print("Node at {},{}".format(self.x,self.y))

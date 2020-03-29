@@ -28,7 +28,7 @@ class Block(Rectangle):
         super().__init__( x, y, width, height)
 
         self.flyable = flyable
-        self.node = gd.Node(x+(width//2),y+(height//2))
+        self.node = gd.Node(x+(width//2),y+(height//2),self)
     def inside(self,x,y):
         return True if (self.x < x and self.x + self.width > x and self.y < y and self.y + self.height > y ) else False
 
@@ -53,6 +53,8 @@ class World(Rectangle):
         self.blocks = [Block(self.x,self.y,self.width,self.height,True)]
         self.drone = VirDrone(x,y)
         self.graph = gd.Graph()
+
+
     def split(self, x, y, dir, flyable):
         
         for i in self.blocks:
@@ -83,7 +85,7 @@ class World(Rectangle):
                 and(j.flyable==True and i.flyable==True)):
                     self.graph.edges.append(gd.Edge(i.node,j.node))
             
-            self.graph.nodes.append(i)
+            self.graph.nodes.append(i.node)#TODO check valid change from i
 
     def checkPaths(self):
 
@@ -91,8 +93,23 @@ class World(Rectangle):
             for j in self.blocks:
                 lines = j.getLines()
                 for k in lines:
-                    if(lh.intersect(i.nodeOne,i.nodeTwo,k[0],k[1])):
+                    if((lh.intersect(i.nodeOne,i.nodeTwo,k[0],k[1])) and j.flyable == False):
                         print("Crosses a bad block")
+                        areaOne = i.nodeOne.parent.width*i.nodeOne.parent.height
+                        areaTwo = i.nodeTwo.parent.width*i.nodeTwo.parent.height
+
+                        if (areaOne >= areaTwo):
+                            if(i.nodeOne.parent.width >= i.nodeOne.parent.height):
+                                self.split(i.nodeOne.x, i.nodeOne.y,VERITCAL,True)
+                            if(i.nodeOne.parent.width < i.nodeOne.parent.height):
+                                self.split(i.nodeOne.x, i.nodeOne.y,HORIZONTAL,True)
+
+                        if (areaTwo >= areaOne):
+                            if(i.nodeTwo.parent.width >= i.nodeTwo.parent.height):
+                                self.split(i.nodeTwo.x, i.nodeTwo.y,VERITCAL,True)
+                            if(i.nodeTwo.parent.width < i.nodeTwo.parent.height):
+                                self.split(i.nodeTwo.x, i.nodeTwo.y,HORIZONTAL,True)
+                                
 
 
 
