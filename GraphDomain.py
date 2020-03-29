@@ -2,7 +2,7 @@
 
 class Node:
     def __init__(self,x,y):
-        print("node created")
+        #print("node created")
         self.x = x
         self.y = y
 
