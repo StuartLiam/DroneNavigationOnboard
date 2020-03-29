@@ -30,7 +30,7 @@ class Block(Rectangle):
         # if ( color is not None ):
         #     self.patch = plt.Rectangle((self.x, self.y), self.width, self.height, facecolor=color, edgecolor='#202020')
         self.flyable = flyable
-        self.node = gd.Node((x+width)//2,(y+height)//2)
+        self.node = gd.Node(x+(width//2),y+(height//2))
     def inside(self,x,y):
         return True if (self.x < x and self.x + self.width > x and self.y < y and self.y + self.height > y ) else False
 
@@ -53,13 +53,13 @@ class World(Rectangle):
         for i in self.blocks:
             if (i.inside(x,y)):
                 if dir == VERITCAL:
-                    self.blocks.append(Block(x,i.y,((i.x + i.width)-x),i.height))
+                    self.blocks.append(Block(x , i.y , ((i.x + i.width)-x) , i.height) )
                     i.width = x - i.x
-                    i.node.x = (i.x + i.width)//2
+                    i.node.x = i.x + (i.width//2)
                 if dir == HORIZONTAL:
-                    self.blocks.append(Block(i.x,y,i.width,((i.y + i.height)-y)))
+                    self.blocks.append(Block( i.x , y , i.width , ((i.y + i.height)-y)) )
                     i.height = y - i.y
-                    i.node.y = (i.y + i.height)//2
+                    i.node.y = i.y + (i.height//2)
             
 
     def updateGraph(self):
@@ -67,7 +67,7 @@ class World(Rectangle):
         self.graph.edges = []
         for i in self.blocks:
             for j in self.blocks:
-                if(i.x+i.width==j.x and j.y>=i.y and j.y <= i.y+i.height):
+                if(i.x+i.width == j.x and j.y >= i.y and j.y <= i.y + i.height):
                     self.graph.edges.append(gd.Edge(i.node,j.node))
                 if(i.y + i.height == j.y and j.x >= i.x and j.x <= i.x + i.width):
                     self.graph.edges.append(gd.Edge(i.node,j.node))
