@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import random
 
+import GraphDomain as gd
 HORIZONTAL = 1
 VERITCAL = 2
 
@@ -29,6 +30,7 @@ class Block(Rectangle):
         # if ( color is not None ):
         #     self.patch = plt.Rectangle((self.x, self.y), self.width, self.height, facecolor=color, edgecolor='#202020')
         self.flyable = flyable
+        self.node = gd.Node((x+width)//2,(y+height)//2)
     def inside(self,x,y):
         return True if (self.x < x and self.x + self.width > x and self.y < y and self.y + self.height > y ) else False
 
@@ -45,6 +47,7 @@ class World(Rectangle):
         #     self.patch = plt.Rectangle((self.x, self.y), self.width, self.height, facecolor=color, edgecolor='#202020')
         self.blocks = [Block(self.x,self.y,self.width,self.height,True)]
         self.drone = VirDrone(x,y)
+        self.graph = gd.Graph()
     def split(self, x, y, dir, type):
         
         for i in self.blocks:
@@ -52,10 +55,24 @@ class World(Rectangle):
                 if dir == VERITCAL:
                     self.blocks.append(Block(x,i.y,((i.x + i.width)-x),i.height))
                     i.width = x - i.x
+                    i.node.x = (i.x + i.width)//2
                 if dir == HORIZONTAL:
                     self.blocks.append(Block(i.x,y,i.width,((i.y + i.height)-y)))
                     i.height = y - i.y
+                    i.node.y = (i.y + i.height)//2
+            
 
+    def updateGraph(self):
+        print("updating the graph")
+        self.graph.edges = []
+        for i in self.blocks:
+            for j in self.blocks:
+                if(i.x+i.width==j.x and j.y>=i.y and j.y <= i.y+i.height):
+                    self.graph.edges.append(gd.Edge(i.node,j.node))
+                if(i.y + i.height == j.y and j.x >= i.x and j.x <= i.x + i.width):
+                    self.graph.edges.append(gd.Edge(i.node,j.node))
+
+            
 
 
     def print(self):
@@ -64,5 +81,8 @@ class World(Rectangle):
         for i in self.blocks:
             i.print()
             plt.Rectangle((i.x, i.y), i.width, i.height, edgecolor='#202020')
-        plt.show()
+
+        print("World has the following graph : \n")
+        self.graph.print()
+        
 
