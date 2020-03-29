@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import random
 
+import GraphDomain as gd
 HORIZONTAL = 1
 VERITCAL = 2
 
@@ -29,6 +30,7 @@ class Block(Rectangle):
         # if ( color is not None ):
         #     self.patch = plt.Rectangle((self.x, self.y), self.width, self.height, facecolor=color, edgecolor='#202020')
         self.flyable = flyable
+        self.node = gd.Node()
     def inside(self,x,y):
         return True if (self.x < x and self.x + self.width > x and self.y < y and self.y + self.height > y ) else False
 
@@ -45,6 +47,7 @@ class World(Rectangle):
         #     self.patch = plt.Rectangle((self.x, self.y), self.width, self.height, facecolor=color, edgecolor='#202020')
         self.blocks = [Block(self.x,self.y,self.width,self.height,True)]
         self.drone = VirDrone(x,y)
+        self.graph = gd.Graph()
     def split(self, x, y, dir, type):
         
         for i in self.blocks:
@@ -55,10 +58,19 @@ class World(Rectangle):
                 if dir == HORIZONTAL:
                     self.blocks.append(Block(i.x,y,i.width,((i.y + i.height)-y)))
                     i.height = y - i.y
+            
 
     def updateGraph(self):
         print("updating the graph")
+        self.graph.edges = []
+        for i in self.blocks:
+            for j in self.blocks:
+                if(i.x+i.width==j.x and j.y>=i.y and j.y <= i.y+i.height):
+                    self.graph.edges.append(i,j)
+                if(i.y + i.height == j.y and j.x >= i.x and j.x <= i.x + i.width):
+                    self.graph.edges.append(i,j)
 
+            
 
 
     def print(self):

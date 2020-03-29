@@ -1,5 +1,3 @@
-from Virtual import World
-
 
 
 class Node:
@@ -16,4 +14,5 @@ class Graph:
     def __init__(self,nodes = None, edges = None):
         self.nodes = nodes if (nodes != None) else []
         self.edges = edges if (edges != None) else []
+
     
