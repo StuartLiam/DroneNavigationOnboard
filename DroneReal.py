@@ -52,7 +52,6 @@ from cflib.positioning.motion_commander import MotionCommander
 from cflib.utils.multiranger import Multiranger
 
 import Virtual as vr
-import GraphDomain as gd
 
 URI = 'radio://0/80/250K'
 
@@ -61,14 +60,14 @@ URI = 'radio://0/80/250K'
 
 
 
-room = vr.World(0,0,30,30,[gd.Node(20,20)])
-droneActor = room.drone
+world = vr.World(0,0,30,30)
+droneActor = world.drone
 
 HORIZONTAL = 1
 VERITCAL = 2
 
-world.drone.x = 5
-world.drone.y = 5
+world.drone.x = 10
+world.drone.y = 10
 
 
 
@@ -99,55 +98,32 @@ if __name__ == '__main__':
                 keep_flying = True
 
                 while keep_flying:
+                    VELOCITY = 0.5
+                    velocity_x = 0.0
+                    velocity_y = 0.0
 
-                    while(room.goals!=None):
-                        VELOCITY = 0.5
-                        velocity_x = 0.0
-                        velocity_y = 0.0
+                    if is_close(multiranger.front):
+                        velocity_x -= VELOCITY
+                        world.split(droneActor.x, droneActor.y, HORIZONTAL, False)
 
-                        if is_close(multiranger.front):
-                            velocity_x -= VELOCITY
-                            room.split(droneActor.x, droneActor.y, HORIZONTAL, False)
+                    if is_close(multiranger.back):
+                        velocity_x += VELOCITY
+                        world.split(droneActor.x, droneActor.y, HORIZONTAL, False)
 
-                        if is_close(multiranger.back):
-                            velocity_x += VELOCITY
-                            room.split(droneActor.x, droneActor.y, HORIZONTAL, False)
+                    if is_close(multiranger.left):
+                        velocity_y -= VELOCITY
+                        world.split(droneActor.x, droneActor.y, VERITCAL, False)
 
-                        if is_close(multiranger.left):
-                            velocity_y -= VELOCITY
-                            room.split(droneActor.x, droneActor.y, VERITCAL, False)
+                    if is_close(multiranger.right):
+                        velocity_y += VELOCITY
+                        world.split(droneActor.x, droneActor.y, VERITCAL, False)
 
-                        if is_close(multiranger.right):
-                            velocity_y += VELOCITY
-                            room.split(droneActor.x, droneActor.y, VERITCAL, False)
+                    if is_close(multiranger.up):
+                        keep_flying = False
 
-                        if is_close(multiranger.up):
-                            keep_flying = False
+                    motion_commander.start_linear_motion(
+                        velocity_x, velocity_y, 0)
 
-                        motion_commander.start_linear_motion(
-                            velocity_x, velocity_y, 0)
-
-
-                        for i in room.blocks:
-                            droneBlock = i if (i.inside(room.drone.x,room.drone.y)) else droneBlock
-                            goalBlock = i if (i.inside(room.currentGoal.x,room.currentGoal.y)) else goalBlock
-                        
-                        if(droneBlock == goalBlock): #same block
-                            print("are in same block")
-
-                        #check useful nodes
-                        #Update the nodes distance to the goal
-                        #if node can get closer goto your blocks node and transfer nodes
-                        # also keep track of used nodes
-
-                        #if not in your block and are in best block
-                        # do a perameter check
-
-                        # if last check was not closed and now closed split
-                        # if last check was closed and now not closed split
-
-                        #Parameter check !!!!!! on bad split
-
-                        time.sleep(0.1)
+                    time.sleep(0.1)
 
             print('Demo terminated!')

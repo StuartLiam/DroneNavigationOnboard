@@ -7,11 +7,17 @@ HORIZONTAL = 1
 VERITCAL = 2
 
 class VirDrone:
-    def __init__(self,x,y):
+    def __init__(self,x,y,world):
         self.x = x
         self.y = y
+        self.world = world
+    
+        self.northBlocked = False
+        self.eastBlocked = False
+        self.westBlocked = False
+        self.southBlocked = False
 
-        
+
 
 class Rectangle:
     def __init__(self, x, y, width, height):
@@ -46,13 +52,15 @@ class Block(Rectangle):
 
 
 class World(Rectangle):
-    def __init__(self, x, y, width, height, color = None ):
+    def __init__(self, x, y, width, height, color = None , goals = None):
         super().__init__( x, y, width, height)
         # if ( color is not None ):
         #     self.patch = plt.Rectangle((self.x, self.y), self.width, self.height, facecolor=color, edgecolor='#202020')
         self.blocks = [Block(self.x,self.y,self.width,self.height,True)]
-        self.drone = VirDrone(x,y)
+        self.drone = VirDrone(x,y,self)
         self.graph = gd.Graph()
+        self.goals = goals
+        self.currentGoal = goals[0] if (goals != None) else None
 
 
     def split(self, x, y, dir, flyable):
