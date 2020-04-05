@@ -134,6 +134,10 @@ if __name__ == '__main__':
                         
                         if(droneBlock == goalBlock): #same block
                             print("are in same block")
+                        
+                        else:
+                            print("in different nodes")
+                            
 
                         #check useful nodes
                         #Update the nodes distance to the goal

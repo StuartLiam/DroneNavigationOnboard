@@ -12,7 +12,7 @@ class Node:
     def print(self):
         print("Node at {},{} with weight {}".format(self.x,self.y,self.weight))
 
-
+        
 
 class Edge:
     def __init__(self,nodeOne,nodeTwo):
@@ -53,7 +53,7 @@ class Graph:
         for i in self.nodes:
             if (i is goalNode):
                 i.weight = 0
-                print("found goal node")
+                #print("found goal node")
 
                 for j in self.edges:
                     if(i is j.nodeOne):
@@ -62,13 +62,13 @@ class Graph:
                     if(i is j.nodeTwo):
                         j.nodeOne.weight = j.length + i.weight
                         self.weightPass(j.nodeOne)
-        for i in self.edges:
-            i.print()
+        #for i in self.edges:
+            #i.print()
 
     def weightPass(self, node):
-        print("hold")
+        #print("hold")
         for j in self.edges:
-            j.print()
+            #j.print()
             newWeight = j.length + node.weight
             if(node is j.nodeOne and (j.nodeTwo.weight > newWeight)):
                 j.nodeTwo.weight = newWeight
