@@ -12,6 +12,7 @@ class VirDrone:
         self.x = x
         self.y = y
         self.world = world
+        self.angle = 0
     
         self.northBlocked = False
         self.eastBlocked = False
@@ -279,7 +280,23 @@ class World(Rectangle):
         for i in self.blocks:
             i.node.weight = i.node.weight * ((i.width*i.height)/(self.width*self.height))
 
-    
+    def getDroneBlock(self):
+        for i in self.blocks:
+            return (i.inside(self.drone.x,self.drone.y))
+        return None
+
+    def getGoalBlock(self):
+        for i in self.blocks:
+            return (i.inside(self.currentGoal.x,self.currentGoal.y))
+        return None
+
+    def bestNode(self,node):
+        bestNode = None
+        for i in self.graph.edges:
+            if(i.nodeOne is node):
+                if((bestNode is None) or i.nodeTwo.weight < bestNode.weight):
+                    bestNode = i.nodeTwo    
+        return bestNode
 
     def print(self):
         super().print()

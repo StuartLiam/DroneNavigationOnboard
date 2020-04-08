@@ -44,6 +44,7 @@ For the example to run the following hardware is needed:
 import logging
 import sys
 import time
+import math
 
 import cflib.crtp
 from cflib.crazyflie import Crazyflie
@@ -52,6 +53,12 @@ from cflib.positioning.motion_commander import MotionCommander
 from cflib.utils.multiranger import Multiranger
 
 import Virtual as vr
+import GraphDomain as gd
+import LineHelp as lh
+import matplotlib.pyplot as plt
+from matplotlib.pyplot import figure
+import matplotlib.patches as patches
+import numpy as np
 
 URI = 'radio://0/80/250K'
 
@@ -60,7 +67,7 @@ URI = 'radio://0/80/250K'
 
 
 
-world = vr.World(0,0,30,30)
+world = vr.World(0,0,300,300)
 droneActor = world.drone
 
 HORIZONTAL = 1
@@ -86,6 +93,17 @@ def is_close(range):
     else:
         return range < MIN_DISTANCE
 
+def path(mc, drone,node):
+    d = math.sqrt(((drone.x-node.x)**2)+((drone.y-node.y)**2))
+
+    angle = math.atan(node.y - drone.y) if (node.x-drone.x == 0) else math.atan((node.y-drone.y)/(node.x-drone.x))
+    angle = math.degrees(angle)
+    angle = angle + 90 if (node.x < drone.x and node.y > drone.y) else angle
+    angle = angle + 180 if (node.x < drone.x and node.y < drone.y) else angle
+    angle = angle + 270 if (node.x >drone.x and node.y < drone.y) else angle
+    return [d,angle]
+
+
 
 if __name__ == '__main__':
     # Initialize the low-level drivers (don't list the debug drivers)
@@ -97,33 +115,56 @@ if __name__ == '__main__':
             with Multiranger(scf) as multiranger:
                 keep_flying = True
 
+                if(world.getDroneBlock() is not world.getGoalBlock()):
+                    if(world.droneAtNode()):
+                        print("path to node")
+                    else:
+                        print("path to other node")
                 while keep_flying:
-                    VELOCITY = 0.5
-                    velocity_x = 0.0
-                    velocity_y = 0.0
+                    print("test")
+                    # VELOCITY = 0.5
+                    # velocity_x = 0.0
+                    # velocity_y = 0.0
 
-                    if is_close(multiranger.front):
-                        velocity_x -= VELOCITY
-                        world.split(droneActor.x, droneActor.y, HORIZONTAL, False)
+                    # if is_close(multiranger.front):
+                    #     velocity_x -= VELOCITY
+                    #     world.split(droneActor.x, droneActor.y, HORIZONTAL, True, True)
 
-                    if is_close(multiranger.back):
-                        velocity_x += VELOCITY
-                        world.split(droneActor.x, droneActor.y, HORIZONTAL, False)
+                    # if is_close(multiranger.back):
+                    #     velocity_x += VELOCITY
+                    #     world.split(droneActor.x, droneActor.y, HORIZONTAL, True, True)
 
-                    if is_close(multiranger.left):
-                        velocity_y -= VELOCITY
-                        world.split(droneActor.x, droneActor.y, VERITCAL, False)
+                    # if is_close(multiranger.left):
+                    #     velocity_y -= VELOCITY
+                    #     world.split(droneActor.x, droneActor.y, VERITCAL, True, True)
 
-                    if is_close(multiranger.right):
-                        velocity_y += VELOCITY
-                        world.split(droneActor.x, droneActor.y, VERITCAL, False)
+                    # if is_close(multiranger.right):
+                    #     velocity_y += VELOCITY
+                    #     world.split(droneActor.x, droneActor.y, VERITCAL, True, True)
 
-                    if is_close(multiranger.up):
-                        keep_flying = False
+                    # if is_close(multiranger.up):
+                    #     keep_flying = False
 
-                    motion_commander.start_linear_motion(
-                        velocity_x, velocity_y, 0)
+                    # motion_commander.start_linear_motion(
+                    #     velocity_x, velocity_y, 0)
 
-                    time.sleep(0.1)
+                    # time.sleep(0.1)
 
             print('Demo terminated!')
+
+
+
+fig2 = plt.figure()
+ax2 = fig2.add_subplot(111, aspect='equal')
+ax2.margins(x=300,y=300)
+for i in world.blocks:
+    ax2.add_patch(
+        patches.Rectangle(
+            (i.x, i.y),
+            i.width,
+            i.height,
+            fill=False if (i.flyable) else True      # remove background
+        ) ) 
+fig2.savefig('rect2.png', dpi=90, bbox_inches='tight')
+
+plt.show()
