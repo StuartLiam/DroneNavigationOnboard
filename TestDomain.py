@@ -44,7 +44,7 @@ world.createWallBlock(gd.Node(50,150),gd.Node(150,150))
 # print("adding in a line at 20,20  20,10")
 world.createWallBlock(gd.Node(150,50),gd.Node(150,200))
 
-world.createWallBlock(gd.Node(50,200),gd.Node(150,200))
+world.createWallBlock(gd.Node(50,50),gd.Node(150,50))
 
 #
 
@@ -58,22 +58,22 @@ print("printing results\n")
 world.print()
 
 
-# done = False
-# while(not done):
-#     world.combine()
-#     done = True
-#     for i in world.blocks:
-#         if(((i.width*i.height)/(world.width*world.height))<0.01 and i.flyable):
-#             done = False
-# while(world.checkPaths()):
-#     world.updateGraph()
+done = False
+while(not done):
+    world.combine()
+    done = True
+    for i in world.blocks:
+        if(((i.width*i.height)/(world.width*world.height))<0.01 and i.flyable):
+            done = False
+while(world.checkPaths()):
+    world.updateGraph()
 
-# world.graph.updateWeights(world.blocks[0].node)
-# world.adjustForSize()
-# print("testing for bad paths\n")
-# while(world.checkPaths()):
-#     world.updateGraph()
-# print("final results\n")
+world.graph.updateWeights(world.blocks[0].node)
+world.adjustForSize()
+print("testing for bad paths\n")
+while(world.checkPaths()):
+    world.updateGraph()
+print("final results\n")
 
 world.print()
 

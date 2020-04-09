@@ -76,3 +76,11 @@ class Graph:
             if(node is j.nodeTwo and (j.nodeOne.weight>newWeight)):
                 j.nodeOne.weight = newWeight
                 self.weightPass(j.nodeOne)
+
+    def bestEdge(self,node):
+        currBest = None
+        for i in edges:
+            if(i.nodeOne is node):
+                currBest = i.nodeTwo if (currBest is None or i.nodeTwo.weight < currBest.weight) else currBest
+            if(i.nodeTwo is node):
+                currBest = i.nodeOne if (currBest is None or i.nodeOne.weight < currBest.weight) else currBest

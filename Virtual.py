@@ -12,7 +12,7 @@ class VirDrone:
         self.x = x
         self.y = y
         self.world = world
-        self.angle = 0
+        self.yaw_deg = 00
     
         self.northBlocked = False
         self.eastBlocked = False
