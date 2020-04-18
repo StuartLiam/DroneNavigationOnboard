@@ -58,10 +58,6 @@ import math
 
 URI = 'radio://0/80/2M'
 
-world = vr.World(0,0,6,6,[gd.Node(2,2)])
-world.drone.x = 3
-world.drone.y = 3
-
 def is_close(range):
     MIN_DISTANCE = 0.4  # m
 
@@ -69,18 +65,6 @@ def is_close(range):
         return False
     else:
         return range < MIN_DISTANCE
-
-def is_far(range):
-    MIN_DISTANCE = 0.8  # m
-
-    if range is None:
-        return False
-    else:
-        return range < MIN_DISTANCE
-
-def detect_to_Node(xStart,yStart,angle,distance):
-    return  gd.Node(distance*math.cos(angle)+xStart, distance*math.sin(angle)+yStart)
-
 
 # Only output errors from the logging framework
 logging.basicConfig(level=logging.ERROR)
@@ -156,10 +140,7 @@ def position_callback(timestamp, data, logconf):
     x = data['kalman.stateX']
     y = data['kalman.stateY']
     z = data['kalman.stateZ']
-    
-    world.drone.x = x
-    world.drone.y = y
-
+    #yaw = data['kalman.yaw']
     print('pos: ({}, {}, {})'.format(x, y, z))
 
 
@@ -182,52 +163,34 @@ def start_yaw_printing(scf):
     log_conf.start()
 
 def yaw_callback(tilestamp,data,logconf):
-    yaw = data['stateEstimate.yaw']
-    world.drone.yaw_deg = yaw
-    print(world.drone.yaw_deg)
+    x = data['stateEstimate.yaw']
+    print(x)
 
-def scan(scf):
-    with MotionCommander(scf) as mc:
-        with Multiranger(scf) as multiranger:
+def slightly_more_complex_usage(scf):
+        with PositionHlCommander(
+                scf,
+                x=0.0, y=0.0, z=0.0,
+                default_velocity=0.3,
+                default_height=0.5,
+                controller=PositionHlCommander.CONTROLLER_MELLINGER) as pc:
+            # Go to a coordinate
+            pc.go_to(1.0, 1.0, 1.0)
 
-            mc.start_turn_left(10)
-            while(is_far(multiranger.front)):
-                do = 0
-            print("found left\n\n\n\n")
+            # Move relative to the current position
+            # pc.right(1.0)
 
-            leftNode = detect_to_Node(world.drone.x,world.drone.y,world.drone.yaw_deg,multiranger.front)
-            mc.start_turn_right(10)
-            time.sleep(1.5)
-            while(is_far(multiranger.front)):
-                do = 0
-            rightNode = detect_to_Node(world.drone.x,world.drone.y,world.drone.yaw_deg,multiranger.front)
-            print("found right\n\n\n\n")
-            mc.stop
-    return [leftNode,rightNode]
+            # # Go to a coordinate and use default height
+            # pc.go_to(0.0, 0.0)
 
-def careful_Forward(scf):
-    with MotionCommander(scf) as mc:
-        with Multiranger(scf) as multiranger:
+            # # Go slowly to a coordinate
+            # pc.go_to(1.0, 1.0, velocity=0.2)
 
-
-            # There is a set of functions that move a specific distance
-            # We can move in all directions
-            #mc.VELOCITY = 0.2
-
-            mc.start_forward(velocity=0.3)
+            # # Set new default velocity and height
+            # pc.set_default_velocity(0.3)
+            # pc.set_default_height(1.0)
+            # pc.go_to(0.0, 0.0)
 
 
-            while(not is_close(multiranger.front) ):
-                do = 0
-            print("found\n\n\n\n")
-            mc.stop
-            return scan(scf)
-
-def droneNear(Node):
-    print("hold")
-
-def droneAt(Node):
-    print("hold")
 
 if __name__ == '__main__':
     # Initialize the low-level drivers (don't list the debug drivers)
@@ -235,8 +198,8 @@ if __name__ == '__main__':
 
     with SyncCrazyflie(URI, cf=Crazyflie(rw_cache='./cache')) as scf:
         # We take off when the commander is created
-        initial_x = 3.0
-        initial_y = 3.0
+        initial_x = 0.0
+        initial_y = 1.0
         initial_z = 0.0
         initial_yaw = 90  # In degrees
         cf = scf.cf
@@ -244,32 +207,6 @@ if __name__ == '__main__':
         reset_estimator(scf)
         start_position_printing(scf)
         start_yaw_printing(scf)
-      
-        careful_Forward(scf)
+        
 
-
-
-
-    world.graph.updateWeights(world.blocks[0].node)
-    world.adjustForSize()
-    print("testing for bad paths\n")
-    while(world.checkPaths()):
-        world.updateGraph()
-    print("final results\n")
-
-    world.print()
-
-    fig2 = plt.figure()
-    ax2 = fig2.add_subplot(111, aspect='equal')
-    ax2.margins(x=7,y=7)
-    for i in world.blocks:
-        ax2.add_patch(
-            patches.Rectangle(
-                (i.x, i.y),
-                i.width,
-                i.height,
-                fill=False if (i.flyable) else True      # remove background
-            ) ) 
-    fig2.savefig('rect2.png', dpi=90, bbox_inches='tight')
-
-    plt.show()
+        slightly_more_complex_usage(scf)

@@ -12,15 +12,9 @@ class VirDrone:
         self.x = x
         self.y = y
         self.world = world
-        self.yaw_deg = 00
-    
-        self.northBlocked = False
-        self.eastBlocked = False
-        self.westBlocked = False
-        self.southBlocked = False
+        self.yaw_deg = 90
 
-
-
+# The base class for pokygons
 class Rectangle:
     def __init__(self, x, y, width, height):
         self.x = x
@@ -37,6 +31,7 @@ class Block(Rectangle):
 
         self.flyable = flyable
         self.node = gd.Node(x+(width//2),y+(height//2),self)
+
     def inside(self,x,y):
         return True if (self.x < x and self.x + self.width > x and self.y < y and self.y + self.height > y ) else False
 
@@ -54,7 +49,7 @@ class Block(Rectangle):
 
 
 class World(Rectangle):
-    def __init__(self, x, y, width, height, color = None , goals = None):
+    def __init__(self, x, y, width, height, goals = None):
         super().__init__( x, y, width, height)
         # if ( color is not None ):
         #     self.patch = plt.Rectangle((self.x, self.y), self.width, self.height, facecolor=color, edgecolor='#202020')
@@ -68,7 +63,7 @@ class World(Rectangle):
     def split(self, x, y, dir, flyOne, flyTwo):
         
         for i in self.blocks:
-            if (i.inside(x,y)):
+            if (i.inside(x,y) and i.flyable):
                 if dir == VERITCAL:
                     self.blocks.append(Block(x , i.y , ((i.x + i.width)-x) , i.height, flyTwo) )
                     i.width = x - i.x
@@ -127,6 +122,7 @@ class World(Rectangle):
         return FoundOne
     
     def createWallBlock(self,nodeOne, nodeTwo):
+        print("correctly called \n\n\n\n")
         midX = nodeOne.x + ((nodeTwo.x-nodeOne.x)/2)
         midY = nodeOne.y + ((nodeTwo.y-nodeTwo.y)/2)
         safety = 6
@@ -274,7 +270,7 @@ class World(Rectangle):
                     self.blocks.remove(j)
                     found = True
 
-        self.updateGraph()
+        #self.updateGraph()
 
     def adjustForSize(self):
         for i in self.blocks:

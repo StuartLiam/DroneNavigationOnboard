@@ -63,7 +63,7 @@ while(not done):
     world.combine()
     done = True
     for i in world.blocks:
-        if(((i.width*i.height)/(world.width*world.height))<0.01 and i.flyable):
+        if(((i.width*i.height)/(world.width*world.height))<10/(world.width*world.height) and i.flyable):
             done = False
 while(world.checkPaths()):
     world.updateGraph()

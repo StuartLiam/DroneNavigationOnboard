@@ -81,6 +81,14 @@ class Graph:
         currBest = None
         for i in edges:
             if(i.nodeOne is node):
-                currBest = i.nodeTwo if (currBest is None or i.nodeTwo.weight < currBest.weight) else currBest
+                currBest = i if (currBest is None or i.nodeTwo.weight * i.length < currBest.weight * currBest.length) else currBest
             if(i.nodeTwo is node):
-                currBest = i.nodeOne if (currBest is None or i.nodeOne.weight < currBest.weight) else currBest
+                currBest = i if (currBest is None or i.nodeOne.weight * i.length < currBest.weight * currBest.length) else currBest
+        return currBest
+
+    def nextNode(self, node):
+        e = bestEdge(node)
+        if(e.nodeOne is node):
+            return e.nodeTwo
+        else:
+            return e.nodeOne

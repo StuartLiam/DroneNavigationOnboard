@@ -23,11 +23,17 @@ if __name__ == '__main__':
 
     with SyncCrazyflie(URI) as scf:
         # We take off when the commander is created
+        cf = scf.cf
         with MotionCommander(scf) as mc:
             print('Taking off!')
-            time.sleep(1)
+            time.sleep(2)
 
-            mc.turn_left(90)
+            roll    = 0.0
+            pitch   = 0.0
+            yawrate = 90
+            thrust  = 0
+            #cf.commander.send_hover_setpoint(0.5, 0, 36 * 2, 0.4)
+            cf.commander.send_hover_setpoint(roll, pitch, yawrate, thrust)
 
             # We land when the MotionCommander goes out of scope
             print('Landing!')
