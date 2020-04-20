@@ -76,3 +76,47 @@ class Graph:
             if(node is j.nodeTwo and (j.nodeOne.weight>newWeight)):
                 j.nodeOne.weight = newWeight
                 self.weightPass(j.nodeOne)
+
+    def bestEdge(self,node):
+        currBest = None
+        for i in self.edges:
+            if(i.nodeOne is node):
+                if currBest is None:
+                    currbest = i
+                else:
+                    otherNode = currBest.nodeOne if currBest.nodeTwo is node else currBest.nodeTwo
+                    if(i.nodeTwo.weight + i.length < otherNode.weight + currBest.length):
+                        currBest = i
+                #currBest = i if (currBest is None or i.nodeTwo.weight + i.length < currBest.weight + currBest.length) else currBest
+            if(i.nodeTwo is node):
+                if currBest is None:
+                    currBest = i
+                else:
+                    otherNode = currBest.nodeOne if currBest.nodeTwo is node else currBest.nodeTwo
+                    if(i.nodeOne.weight + i.length < otherNode.weight + currBest.length):
+                        currBest = i
+                
+                #currBest = i if (currBest is None or i.nodeOne.weight + i.length < currBest.weight + currBest.length) else currBest
+        #print("best edge:")
+        #currBest.print()
+        return currBest
+
+    def nextNode(self, node):
+        e = self.bestEdge(node)
+        if(e.nodeOne is node):
+            return e.nodeTwo
+        else:
+            return e.nodeOne
+
+    def bestPath(self,node1, node2):
+        arr = [node1]
+        arrNd = []
+        currNode = node1
+        while(currNode is not node2):
+            currNode = self.nextNode(currNode)
+            arr.append(currNode)
+            print("added:")
+            currNode.print()
+        for i in range(len(arr)-1):
+            arrNd.append(Edge(arr[i],arr[i+1]))
+        return arrNd
