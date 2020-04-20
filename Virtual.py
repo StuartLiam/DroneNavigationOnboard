@@ -125,7 +125,7 @@ class World(Rectangle):
         print("correctly called \n\n\n\n")
         midX = nodeOne.x + ((nodeTwo.x-nodeOne.x)/2)
         midY = nodeOne.y + ((nodeTwo.y-nodeTwo.y)/2)
-        safety = 6
+        safety = 0.2
 
         block = Block(0,0,0,0,False)
 
@@ -292,6 +292,9 @@ class World(Rectangle):
             if(i.nodeOne is node):
                 if((bestNode is None) or i.nodeTwo.weight < bestNode.weight):
                     bestNode = i.nodeTwo    
+            if(i.nodeTwo is node):
+                if((bestNode is None) or i.nodeOne.weight < bestNode.weight):
+                    bestNode = i.nodeOne 
         return bestNode
 
     def print(self):

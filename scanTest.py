@@ -43,7 +43,7 @@ from cflib.utils.multiranger import Multiranger
 from cflib.crazyflie.log import LogConfig
 from cflib.crazyflie.syncLogger import SyncLogger
 
-import Virtual as vr
+import VirtualFix as vr
 import GraphDomain as gd
 import LineHelp as lh
 import matplotlib.pyplot as plt
@@ -58,10 +58,9 @@ import math
 
 URI = 'radio://0/80/2M'
 
-world = vr.World(0,0,6,6,[gd.Node(3,5)])
-world.currentGoal = gd.Node(3,5)
-world.drone.x = 3
-world.drone.y = 3
+world = vr.World(0,0,2,2,[gd.Node(1,1.9)])
+world.drone.x = 1
+world.drone.y = 1
 
 def is_close(range):
     MIN_DISTANCE = 0.4  # m
@@ -187,7 +186,19 @@ def yaw_callback(tilestamp,data,logconf):
    # print(world.drone.yaw_deg)
 
 def dronePointAngle(Node):
-    return math.atan((Node.y-world.drone.y)/(Node.x-world.drone.y))
+    if(int(world.drone.x)==Node.x):#same x
+        if(Node.y > world.drone.y):
+            return 90
+        else:
+            return 180
+    if(int(world.drone.y)==Node.y):
+        if(Node.x > world.drone.x):
+            return 90
+        else:
+            return 180
+
+    return math.degrees(math.atan((Node.y-world.drone.y)/(Node.x-world.drone.y)))
+    
 
 def atNode(node):
     return abs(world.drone.x - node.x) < 0.2 and abs(world.drone.y - node.y) < 0.2
@@ -200,8 +211,9 @@ if __name__ == '__main__':
 
     with SyncCrazyflie(URI, cf=Crazyflie(rw_cache='./cache')) as scf:
         # We take off when the commander is created
-        initial_x = 3.0
-        initial_y = 3.0
+        #world.getDroneBlock().node.print()
+        initial_x = 1
+        initial_y = 1
         initial_z = 0.0
         initial_yaw = 90  # In degrees
         cf = scf.cf
@@ -212,175 +224,201 @@ if __name__ == '__main__':
         with MotionCommander(scf) as mc:
             with Multiranger(scf) as multiranger:
 
-
+                print(world.drone.x)
+                print(world.drone.y)
+                world.currentGoal.print()
+                turnAngle = dronePointAngle(world.currentGoal) - world.drone.yaw_deg
+                print(turnAngle)
                 # There is a set of functions that move a specific distance
                 # We can move in all directions
                 #mc.VELOCITY = 0.2
 
                 time.sleep(2)
-                world.currentGoal.print()
-                if (atNode(world.currentGoal)):
-                    print("somehow made it")
-
-                if(world.getDroneBlock() is world.getGoalBlock()):
-
-                    turnAngle = dronePointAngle(world.currentGoal) - world.drone.yaw_deg
-                    if(turnAngle < 0):
-                        mc.turn_right(abs(turnAngle))
-                    else:
-                        mc.turn_left(turnAngle)
-
-                    mc.start_forward(velocity=0.2)
-                    while(not is_close(multiranger.front)): #and not at goal
-                        do = 0
-                    print("found\n\n\n\n")
 
 
-                    mc.start_turn_left(20)
-                    while(is_far(multiranger.front)):
-                        do = 0
-                    print("found left\n\n\n\n")
-                    mc.start_turn_right(20)
-                    time.sleep(2)
-                    xD = world.drone.x
-                    yD = world.drone.y
-                    yawD = world.drone.yaw_deg
-                    dist = multiranger.front
-                    print("Drone X: {}, Drone Y: {}, Angle:{}, Distance: {}".format(xD,yD,yawD,dist))
-                    
-                    leftNode = detect_to_Node(xD,yD,yawD,dist)
+                while (not atNode(world.currentGoal) and not is_close(multiranger.up)):
 
-                    while(is_far(multiranger.front)):
-                        do = 0
+                    #world.getDroneBlock().node.print()
+                   # world.getGoalBlock().node.print()
 
-                    print("found right\n\n\n\n")
-                    mc.start_turn_left(20)
-                    time.sleep(1)
-                    xD = world.drone.x
-                    yD = world.drone.y
-                    yawD = world.drone.yaw_deg
-                    dist = multiranger.front
-                    rightNode = detect_to_Node(xD,yD,yawD,dist)
-                    print("Drone X: {}, Drone Y: {}, Angle:{}, Distance: {}".format(xD,yD,yawD,dist))
-                    mc.stop
+                    if(world.getDroneBlock() is world.getGoalBlock()):
 
-                    world.createWallBlock(leftNode,rightNode)
-                    leftNode.print()
-                    rightNode.print()
+                        print("its same block so to towards")
 
-                # else: #deal with different blocks
+                        turnAngle = dronePointAngle(world.currentGoal) - world.drone.yaw_deg
+                        print("Now turning: {} degrees".format(turnAngle))
+                        if(turnAngle < 0):
+                            mc.turn_right(abs(turnAngle))
+                        else:
+                            mc.turn_left(turnAngle)
 
-                #     if(atNode(world.getDroneBlock())):
-                #         turnAngle = dronePointAngle(world.nextBest()) - world.drone.yaw_deg
-                #         if(turnAngle < 0):
-                #             mc.turn_right(abs(turnAngle))
-                #         else:
-                #             mc.turn_left(turnAngle)
-
-                #         mc.start_forward(velocity=0.2)
-                #         while(not is_close(multiranger.front) and not atNode(world.currentGoal)):
-                #             do = 0
-                #             print("found\n\n\n\n")
-
-
-                #             mc.start_turn_left(20)
-                #             while(is_far(multiranger.front)):
-                #                 do = 0
-                #             print("found left\n\n\n\n")
-                #             mc.start_turn_right(20)
-                #             time.sleep(2)
-                #             xD = world.drone.x
-                #             yD = world.drone.y
-                #             yawD = world.drone.yaw_deg
-                #             dist = multiranger.front
-                #             print("Drone X: {}, Drone Y: {}, Angle:{}, Distance: {}".format(xD,yD,yawD,dist))
+                        mc.start_forward(velocity=0.2)
+                        while(not is_close(multiranger.front) and not atNode(world.currentGoal)): #and not at goal
+                            do = 0
                             
-                #             leftNode = detect_to_Node(xD,yD,yawD,dist)
-
-                #             while(is_far(multiranger.front)):
-                #                 do = 0
-
-                #             print("found right\n\n\n\n")
-                #             mc.start_turn_left(20)
-                #             time.sleep(1)
-                #             xD = world.drone.x
-                #             yD = world.drone.y
-                #             yawD = world.drone.yaw_deg
-                #             dist = multiranger.front
-                #             rightNode = detect_to_Node(xD,yD,yawD,dist)
-                #             print("Drone X: {}, Drone Y: {}, Angle:{}, Distance: {}".format(xD,yD,yawD,dist))
-                #             mc.stop
-                #             world.createWallBlock(leftNode,rightNode)
-                #     else:
-                #         turnAngle = dronePointAngle(world.getDroneBlock()) - world.drone.yaw_deg
-                #         if(turnAngle < 0):
-                #             mc.turn_right(abs(turnAngle))
-                #         else:
-                #             mc.turn_left(turnAngle)
-
-                #         mc.start_forward(velocity=0.2)
-                #         while(not is_close(multiranger.front) and not atNode(world.currentGoal)):
-                #             do = 0
-                #             print("found\n\n\n\n")
+                        if(not atNode(world.currentGoal)):
+                            print("found while headning to goal\n\n\n\n")
 
 
-                #             mc.start_turn_left(20)
-                #             while(is_far(multiranger.front)):
-                #                 do = 0
-                #             print("found left\n\n\n\n")
-                #             mc.start_turn_right(20)
-                #             time.sleep(2)
-                #             xD = world.drone.x
-                #             yD = world.drone.y
-                #             yawD = world.drone.yaw_deg
-                #             dist = multiranger.front
-                #             print("Drone X: {}, Drone Y: {}, Angle:{}, Distance: {}".format(xD,yD,yawD,dist))
+                            mc.start_turn_left(20)
+                            while(is_far(multiranger.front)):
+                                do = 0
+                            print("found left\n\n\n\n")
+                            mc.start_turn_right(20)
+                            time.sleep(2)
+                            xD = world.drone.x
+                            yD = world.drone.y
+                            yawD = world.drone.yaw_deg
+                            dist = multiranger.front
+                            print("Drone X: {}, Drone Y: {}, Angle:{}, Distance: {}".format(xD,yD,yawD,dist))
                             
-                #             leftNode = detect_to_Node(xD,yD,yawD,dist)
+                            leftNode = detect_to_Node(xD,yD,yawD,dist)
 
-                #             while(is_far(multiranger.front)):
-                #                 do = 0
+                            while(is_far(multiranger.front)):
+                                do = 0
 
-                #             print("found right\n\n\n\n")
-                #             mc.start_turn_left(20)
-                #             time.sleep(1)
-                #             xD = world.drone.x
-                #             yD = world.drone.y
-                #             yawD = world.drone.yaw_deg
-                #             dist = multiranger.front
-                #             rightNode = detect_to_Node(xD,yD,yawD,dist)
-                #             print("Drone X: {}, Drone Y: {}, Angle:{}, Distance: {}".format(xD,yD,yawD,dist))
-                #             mc.stop
-                #             world.createWallBlock(leftNode,rightNode)
+                            print("found right\n\n\n\n")
+                            mc.start_turn_left(20)
+                            time.sleep(1)
+                            xD = world.drone.x
+                            yD = world.drone.y
+                            yawD = world.drone.yaw_deg
+                            dist = multiranger.front
+                            rightNode = detect_to_Node(xD,yD,yawD,dist)
+                            print("Drone X: {}, Drone Y: {}, Angle:{}, Distance: {}".format(xD,yD,yawD,dist))
+                            mc.stop
+
+                            world.createWallBlock(leftNode,rightNode)
+
+                        while(world.checkPaths()):
+                            world.updateGraph()
+                        world.graph.updateWeights(world.currentGoal)
+
+                    else: #deal with different blocks
+                        
+                        if(atNode(world.getDroneBlock().node)):
+                            print("im at the centerpoint, next node dawg")
+                            world.updateGraph()
+                            while(world.checkPaths()):
+                                world.updateGraph()
+                            world.graph.updateWeights(world.currentGoal)
+                            world.print()
+                            nextNode = world.bestNode(world.getDroneBlock().node)
+
+                            turnAngle = dronePointAngle(nextNode) - world.drone.yaw_deg
+                            if(turnAngle < 0):
+                                mc.turn_right(abs(turnAngle))
+                            else:
+                                mc.turn_left(turnAngle)
+
+                            mc.start_forward(velocity=0.2)
+                            while(not is_close(multiranger.front) and not atNode(nextNode)):
+                                do = 0
+                            if(not atNode(nextNode)):
+                                print("found\n\n\n\n")
 
 
-                
+                                mc.start_turn_left(20)
+                                while(is_far(multiranger.front)):
+                                    do = 0
+                                print("found left\n\n\n\n")
+                                mc.start_turn_right(20)
+                                time.sleep(2)
+                                xD = world.drone.x
+                                yD = world.drone.y
+                                yawD = world.drone.yaw_deg
+                                dist = multiranger.front
+                                print("Drone X: {}, Drone Y: {}, Angle:{}, Distance: {}".format(xD,yD,yawD,dist))
+                                
+                                leftNode = detect_to_Node(xD,yD,yawD,dist)
+
+                                while(is_far(multiranger.front)):
+                                    do = 0
+
+                                print("found right\n\n\n\n")
+                                mc.start_turn_left(20)
+                                time.sleep(1)
+                                xD = world.drone.x
+                                yD = world.drone.y
+                                yawD = world.drone.yaw_deg
+                                dist = multiranger.front
+                                rightNode = detect_to_Node(xD,yD,yawD,dist)
+                                print("Drone X: {}, Drone Y: {}, Angle:{}, Distance: {}".format(xD,yD,yawD,dist))
+                                mc.stop
+                                world.createWallBlock(leftNode,rightNode)
+                            while(world.checkPaths()):
+                                world.updateGraph()
+                            world.graph.updateWeights(world.currentGoal)
+
+                        else:
+                            print("different block so going to node")
+                            turnAngle = dronePointAngle(world.getDroneBlock().node) - world.drone.yaw_deg
+                            if(turnAngle < 0):
+                                mc.turn_right(abs(turnAngle))
+                            else:
+                                mc.turn_left(turnAngle)
+
+                            mc.start_forward(velocity=0.2)
+                            while(not is_close(multiranger.front) and not atNode(world.getDroneBlock().node)):
+                                do = 0
+                            if(not atNode(world.getDroneBlock().node)):
+                                print("found while going to node\n\n\n\n")
 
 
+                                mc.start_turn_left(20)
+                                while(is_far(multiranger.front)):
+                                    do = 0
+                                print("found left\n\n\n\n")
+                                mc.start_turn_right(20)
+                                time.sleep(2)
+                                xD = world.drone.x
+                                yD = world.drone.y
+                                yawD = world.drone.yaw_deg
+                                dist = multiranger.front
+                                print("Drone X: {}, Drone Y: {}, Angle:{}, Distance: {}".format(xD,yD,yawD,dist))
+                                
+                                leftNode = detect_to_Node(xD,yD,yawD,dist)
 
-            mc.stop()
+                                while(is_far(multiranger.front)):
+                                    do = 0
+
+                                print("found right\n\n\n\n")
+                                mc.start_turn_left(20)
+                                time.sleep(1)
+                                xD = world.drone.x
+                                yD = world.drone.y
+                                yawD = world.drone.yaw_deg
+                                dist = multiranger.front
+                                rightNode = detect_to_Node(xD,yD,yawD,dist)
+                                print("Drone X: {}, Drone Y: {}, Angle:{}, Distance: {}".format(xD,yD,yawD,dist))
+                                mc.stop
+                                world.createWallBlock(leftNode,rightNode)
+                            while(world.checkPaths()):
+                                world.updateGraph()
+                            world.graph.updateWeights(world.currentGoal)
+
 
             #We land when the MotionCommander goes out of scope
 
-    done = False
-    while(not done):
-        world.combine()
-        done = True
-        for i in world.blocks:
-            if(((i.width*i.height)/(world.width*world.height))<10/(world.width*world.height) and i.flyable):
-                done = False
+    # done = False
+    # while(not done):
+    #     world.combine()
+    #     done = True
+    #     for i in world.blocks:
+    #         if(((i.width*i.height)/(world.width*world.height))<10/(world.width*world.height) and i.flyable):
+    #             done = False
     while(world.checkPaths()):
         world.updateGraph()
 
     world.graph.updateWeights(world.blocks[0].node)
-    world.adjustForSize()
-    print("testing for bad paths\n")
-    while(world.checkPaths()):
-        world.updateGraph()
-    print("final results\n")
+    #world.adjustForSize()
+    # print("testing for bad paths\n")
+    # while(world.checkPaths()):
+    #     world.updateGraph()
+    # print("final results\n")
 
-    world.createWallBlock(gd.Node(2,2),gd.Node(2,3))
-    world.print()
+
+    #world.print()
 
     fig2 = plt.figure()
     ax2 = fig2.add_subplot(111, aspect='equal')
