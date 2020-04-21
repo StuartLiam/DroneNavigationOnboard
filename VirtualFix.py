@@ -92,12 +92,12 @@ class World(Rectangle):
             for j in self.blocks:
                 if(i.x == j.x + j.width):
                     if((i.y >= j.y and i.y <= j.y + j.height) or (j.y >= i.y and j.y <= i.y + i.height)):
-                        if(i.flyable and j.flyable):
+                        if(i.flyable and j.flyable and i.height*i.width > 0.5 and j.height*j.width):
                             self.graph.edges.append(gd.Edge(i.node,j.node))
 
                 if(i.y == j.y + j.height):
                     if((i.x >= j.x and i.x <= j.x + j.width) or (j.x >= i.x and j.x <= i.x + i.width)):
-                        if(i.flyable and j.flyable):
+                        if(i.flyable and j.flyable and i.height*i.width > 0.5 and j.height*j.width):
                             self.graph.edges.append(gd.Edge(i.node,j.node))
 
         
