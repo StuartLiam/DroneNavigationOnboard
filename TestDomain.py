@@ -29,7 +29,7 @@ print("starting tests\n")
 
 # print("length {} at angle {}".format(path[0],path[1]))
 print ("Creating World\n")
-world = vr.World(0,0,6,6,[gd.Node(5,5)])
+world = vr.World(0,0,12,12,[gd.Node(10,10)])
 world.drone.x = 0.5
 world.drone.y = 0.5
 world.print()
@@ -37,10 +37,10 @@ world.print()
 #world.split(2.5,2.5,VERITCAL,True,True)
 
 print("adding in a line at 5,5  10,5")
-world.createWallBlock(gd.Node(4,2),gd.Node(4,4))
+world.createWallBlock(gd.Node(10,2),gd.Node(10,8))
 world.createWallBlock(gd.Node(1,1),gd.Node(1,2))
-world.createWallBlock(gd.Node(2,3),gd.Node(3,3))
-#world.createWallBlock(gd.Node(5,1),gd.Node(5,3))
+world.createWallBlock(gd.Node(2,3),gd.Node(5,3))
+world.createWallBlock(gd.Node(4,1),gd.Node(4,3))
 
 # print("updating the graph for the split\n")
 # world.updateGraph()

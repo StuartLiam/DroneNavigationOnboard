@@ -1,4 +1,14 @@
 
+# Library requirements #
+
+the following python libraries are required to run the project:
+
+general purpose:
+    shapely
+    matplotlib
+    numpy
+drone specific:
+    cflib
 
 # Algorithem #
 
