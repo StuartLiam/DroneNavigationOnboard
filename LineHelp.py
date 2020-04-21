@@ -1,3 +1,11 @@
+
+
+##
+#
+#   This file is archived and is no longer in use
+#
+#
+
 import GraphDomain as gd
 
 #the following 2 functions where taken from https://stackoverflow.com/questions/3838329/how-can-i-check-if-two-segments-intersect
