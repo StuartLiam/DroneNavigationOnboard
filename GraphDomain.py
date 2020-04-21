@@ -120,3 +120,4 @@ class Graph:
         for i in range(len(arr)-1):
             arrNd.append(Edge(arr[i],arr[i+1]))
         return arrNd
+

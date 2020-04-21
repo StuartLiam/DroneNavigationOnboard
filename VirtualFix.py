@@ -361,7 +361,7 @@ class World(Rectangle):
     def adjustForSize(self):
         for i in self.blocks:
             if(i.flyable):
-                i.node.weight = i.node.weight * ((i.width*i.height)/(self.width*self.height))
+                i.node.weight = i.node.weight * ((i.width*i.height))
 
     def getDroneBlock(self):
         for i in self.blocks:
