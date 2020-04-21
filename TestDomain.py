@@ -38,7 +38,9 @@ world.print()
 
 print("adding in a line at 5,5  10,5")
 world.createWallBlock(gd.Node(4,2),gd.Node(4,4))
-
+world.createWallBlock(gd.Node(1,1),gd.Node(1,2))
+#world.createWallBlock(gd.Node(2,3),gd.Node(3,3))
+#world.createWallBlock(gd.Node(0,5),gd.Node(3,5))
 
 # print("updating the graph for the split\n")
 # world.updateGraph()
@@ -89,7 +91,7 @@ world.updateGraph()
 while(world.checkPaths()):
     world.updateGraph()
 world.graph.updateWeights(world.getGoalBlock().node)
-#world.adjustForSize()
+world.adjustForSize()
 world.print()
 
 path = world.graph.bestPath(world.getDroneBlock().node, world.getGoalBlock().node)
